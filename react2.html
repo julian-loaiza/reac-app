@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tutorial de React: Creando tu Primera Aplicación de Lista de Tareas (To-Do App)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 0; color: #222; }
+    main { max-width: 950px; margin: 30px auto; background: #fff; padding: 34px; border-radius: 14px; box-shadow: 0 2px 8px #eee; }
+    h1, h2, h3 { color: #1565c0; }
+    code, pre { background: #e3f2fd; color: #003366; padding: 4px 6px; border-radius: 5px; font-size: 1em;}
+    pre { overflow-x: auto; }
+    mark { background: #fff59d; }
+    .block { background: #e8f5e9; padding: 12px; border-radius: 7px; margin-bottom: 1em; border-left: 4px solid #43a047;}
+    .important { background: #fffde7; border-left: 4px solid #ffc107;}
+    ul, ol { margin-bottom: 1em; }
+    .mini-resumen { background: #f1f8e9; border-left: 4px solid #81c784; padding: 8px 12px; margin-top: 1.5em; margin-bottom: 2em;}
+    strong { color: #0d47a1;}
+    .explica { background: #e3eafc; border-left: 4px solid #3949ab; padding: 8px 12px; margin-bottom: 1em;}
+    .pregunta { background: #fff3e0; border-left: 4px solid #ff9800; padding: 8px 12px; margin-bottom: 1em;}
+    .detalle { font-size: 0.97em; color: #1a237e;}
+    a { color: #0d47a1; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Tutorial de React: Creando tu Primera Aplicación de Lista de Tareas (To-Do App)</h1>
+  <p>
+    <mark>Aprende los fundamentos de <strong>React</strong> paso a paso</mark> mientras creas una aplicación útil. Cada sección explica no solo lo que debes hacer, sino <b>para qué sirve</b> y <b>por qué es importante</b>.<br>
+    <em>Este material está pensado para estudiantes de tecnología y desarrollo de software, con conocimientos básicos de HTML, CSS y JavaScript.</em>
+  </p>
+
+  <hr>
+
+  <h2>Índice</h2>
+  <ol>
+    <li><a href="#parte0">Preparación del Entorno</a></li>
+    <li><a href="#parte1">Limpiando y Entendiendo Nuestro Proyecto</a></li>
+    <li><a href="#parte2">Estructurando la Aplicación</a></li>
+    <li><a href="#parte3">Manejando el Estado y Añadiendo Tareas</a></li>
+    <li><a href="#parte4">Mostrando la Lista de Tareas</a></li>
+    <li><a href="#parte5">Añadiendo Interactividad (Completar y Eliminar Tareas)</a></li>
+    <li><a href="#parte6">Estilos y Toques Finales</a></li>
+  </ol>
+
+  <hr>
+
+  <!-- PARTE 0 -->
+  <h2 id="parte0">Parte 0: Preparación del Entorno</h2>
+  <div class="explica">
+    <b>¿Qué es React y para qué sirve?</b><br>
+    <mark>React</mark> es una biblioteca de JavaScript que te ayuda a construir interfaces de usuario (lo que los usuarios ven y usan en una web) de forma <b>modular</b> y eficiente. En vez de manipular el DOM directamente, React te permite pensar en pequeños "bloques" llamados <b>componentes</b>. Cada componente representa una parte de la pantalla y puedes combinarlos para crear aplicaciones grandes y escalables.
+  </div>
+
+  <ol>
+    <li>
+      <strong>Verificar instalación de Node.js y npm</strong>
+      <div class="explica">
+        <b>¿Qué son y para qué sirven?</b><br>
+        <b>Node.js</b> permite ejecutar JavaScript fuera del navegador y es necesario para usar herramientas modernas de desarrollo.<br>
+        <b>npm</b> es el gestor de paquetes de Node.js. Te permite instalar librerías como React fácilmente.
+      </div>
+      Abre tu terminal y ejecuta:
+      <pre><code>node -v
+npm -v</code></pre>
+      Si ves versiones (por ejemplo, v18.16.0), todo está bien. Si te dice "comando no encontrado", descárgalo de <a href="https://nodejs.org/" target="_blank">nodejs.org</a>.
+    </li>
+    <li>
+      <strong>Crear un nuevo proyecto con <mark>create-react-app</mark></strong>
+      <div class="explica">
+        <b>¿Qué es?</b><br>
+        <mark>create-react-app</mark> es una herramienta que configura automáticamente todo lo necesario para iniciar un proyecto React moderno, sin que tengas que preocuparte por configuraciones complejas.<br>
+        <b>¿Por qué es útil?</b> Porque te permite enfocarte en aprender React y escribir código desde el primer minuto.
+      </div>
+      Ejecuta en tu terminal:
+      <pre><code>npx create-react-app mi-lista-de-tareas</code></pre>
+      Esto creará una carpeta llamada <b>mi-lista-de-tareas</b> con una estructura lista para empezar.
+    </li>
+    <li>
+      <strong>Explorando la estructura de carpetas</strong>
+      <div class="explica">
+        Entender qué hay en tu proyecto es clave para no perderte después. Lo más importante:
+        <ul>
+          <li><code>src/</code>: Aquí escribirás la mayoría del código de la app React.</li>
+          <li><code>public/</code>: Contiene el archivo <code>index.html</code> y recursos públicos.</li>
+          <li><code>package.json</code>: Lista las dependencias y scripts (por ejemplo, los comandos para arrancar la app).</li>
+        </ul>
+      </div>
+    </li>
+  </ol>
+  <div class="mini-resumen">
+    <b>¿Qué aprendiste aquí?</b> <br>
+    - Qué es React y por qué es tan usado.<br>
+    - Para qué sirve Node.js y npm.<br>
+    - Cómo arrancar tu proyecto con la estructura correcta.
+  </div>
+
+  <!-- PARTE 1 -->
+  <h2 id="parte1">Parte 1: Limpiando y Entendiendo Nuestro Proyecto</h2>
+  <ol>
+    <li>
+      <strong>Iniciar el servidor de desarrollo</strong>
+      <div class="explica">
+        <b>¿Qué es?</b> Un servidor local que muestra tu aplicación y se actualiza cada vez que guardas cambios.<br>
+        <b>¿Para qué sirve?</b> Para ver al instante los resultados de tu trabajo y encontrar errores rápidamente.
+      </div>
+      En tu terminal, escribe:
+      <pre><code>cd mi-lista-de-tareas
+npm start</code></pre>
+      Esto abrirá la app de ejemplo en el navegador. ¡Ya estás viendo React en acción!
+    </li>
+    <li>
+      <strong>Limpiar archivos innecesarios para empezar desde cero</strong>
+      <div class="explica">
+        <b>¿Por qué limpiar?</b> El proyecto trae ejemplos y archivos de demo. Limpiar es bueno para no confundirse y tener solo lo necesario.<br>
+        <b>¿Qué borrar?</b> Puedes borrar (o dejar vacíos) <code>App.css</code>, <code>logo.svg</code> y quitar las referencias a ellos en <code>App.js</code> e <code>index.js</code>.
+      </div>
+    </li>
+    <li>
+      <strong>Crea tu primer componente personalizado en App.js</strong>
+      <div class="explica">
+        <b>¿Qué es un componente?</b> Un bloque de código reutilizable que representa una parte de la interfaz. En React, todo es un componente.<br>
+        <b>¿Por qué es importante?</b> Aprender a crear y entender componentes es la base de React.
+      </div>
+      Cambia el contenido de <code>App.js</code> a esto:
+      <pre><code>{`
+import React from 'react';
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;¡Hola Mundo desde React!&lt;/h1&gt;
+      &lt;p&gt;¡Has creado tu primer componente funcional!&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default App;
+      `}</code></pre>
+      <div class="detalle">
+        <b>Explicación:</b> <br>
+        <ul>
+          <li><code>import React from 'react';</code> importa React (necesario para usar JSX).</li>
+          <li><code>function App() { ... }</code> define tu componente principal.</li>
+          <li><code>return (&lt;div&gt;...&lt;/div&gt;);</code> define lo que se muestra en pantalla (JSX).</li>
+        </ul>
+      </div>
+    </li>
+  </ol>
+  <div class="mini-resumen">
+    <b>¿Qué aprendiste aquí?</b> <br>
+    - Qué es el servidor de desarrollo y por qué es clave.<br>
+    - Qué es un componente React y cómo crearlo.<br>
+    - Cómo limpiar el proyecto para enfocarte en lo esencial.
+  </div>
+
+  <!-- PARTE 2 -->
+  <h2 id="parte2">Parte 2: Estructurando la Aplicación</h2>
+  <ol>
+    <li>
+      <strong>¿Qué significa estructurar una app en componentes?</strong>
+      <div class="explica">
+        <b>En React, dividimos la interfaz en componentes, cada uno con una función clara:</b>
+        <ul>
+          <li><b>App:</b> El componente principal, que "orquesta" toda la app.</li>
+          <li><b>TaskForm:</b> Permite al usuario agregar nuevas tareas (formulario).</li>
+          <li><b>TaskList:</b> Muestra todas las tareas agregadas.</li>
+        </ul>
+        <b>Ventaja:</b> Separar responsabilidades ayuda a que el código sea más fácil de entender y mantener.
+      </div>
+    </li>
+    <li>
+      <strong>Crea archivos para tus componentes</strong>
+      <div class="explica">
+        <b>¿Dónde?</b> En la carpeta <code>src/</code>.<br>
+        <b>¿Cómo?</b> Haz clic derecho → "Nuevo archivo":<br>
+        - <b>TaskForm.js</b><br>
+        - <b>TaskList.js</b>
+      </div>
+    </li>
+    <li>
+      <strong>Código base para <code>TaskForm.js</code>:</strong>
+      <pre><code>{`
+import React from 'react';
+
+function TaskForm() {
+  return (
+    &lt;form&gt;
+      &lt;input type="text" placeholder="Nueva tarea" /&gt;
+      &lt;button type="submit"&gt;Agregar&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+
+export default TaskForm;
+      `}</code></pre>
+      <div class="detalle">
+        Este formulario será la entrada donde el usuario escribe una tarea y la envía para agregarla a la lista.
+      </div>
+    </li>
+    <li>
+      <strong>Código base para <code>TaskList.js</code>:</strong>
+      <pre><code>{`
+import React from 'react';
+
+function TaskList(props) {
+  return (
+    &lt;ul&gt;
+      {/* Aquí se mostrarán las tareas */}
+    &lt;/ul&gt;
+  );
+}
+
+export default TaskList;
+      `}</code></pre>
+      <div class="detalle">
+        Aquí se mostrarán dinámicamente todas las tareas agregadas.
+      </div>
+    </li>
+    <li>
+      <strong>¿Cómo usar los componentes en <code>App.js</code>?</strong>
+      <pre><code>{`
+import React from 'react';
+import TaskForm from './TaskForm';
+import TaskList from './TaskList';
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Mi Lista de Tareas&lt;/h1&gt;
+      &lt;TaskForm /&gt;
+      &lt;TaskList /&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default App;
+      `}</code></pre>
+      <div class="detalle">
+        Así ensamblas tu aplicación, usando los componentes como "bloques" que React va a mostrar.
+      </div>
+    </li>
+  </ol>
+  <div class="mini-resumen">
+    <b>¿Qué aprendiste aquí?</b> <br>
+    - Cómo pensar una app como un conjunto de componentes.<br>
+    - Cómo crear componentes y usarlos en tu app principal.<br>
+    - Separar responsabilidades para tener código más limpio.
+  </div>
+
+  <!-- PARTE 3 -->
+  <h2 id="parte3">Parte 3: Manejando el Estado y Añadiendo Tareas</h2>
+  <ol>
+    <li>
+      <strong>¿Qué es el estado y por qué es importante?</strong>
+      <div class="explica">
+        El <b>estado</b> (<mark>state</mark>) es la información que un componente recuerda mientras la app está funcionando.<br>
+        En este caso, la lista de tareas debe recordarse y actualizarse cada vez que el usuario añade una nueva tarea. <br>
+        <b>useState</b> es un “hook” (función especial de React) para que los componentes puedan tener y actualizar su propio estado.
+      </div>
+    </li>
+    <li>
+      <strong>Declara el estado y una función para añadir tareas en <code>App.js</code></strong>
+      <pre><code>{`
+import React, { useState } from 'react';
+import TaskForm from './TaskForm';
+import TaskList from './TaskList';
+
+function App() {
+  // Aquí declaras la lista de tareas (vacía al inicio)
+  const [tasks, setTasks] = useState([]);
+
+  // Función para añadir una nueva tarea a la lista
+  const addTask = (text) => {
+    if (!text.trim()) return; // Evita añadir tareas vacías
+    setTasks([...tasks, { text, completed: false }]);
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Mi Lista de Tareas&lt;/h1&gt;
+      {/* Pasas la función addTask al formulario */}
+      &lt;TaskForm onAddTask={addTask} /&gt;
+      {/* Pasas la lista de tareas a TaskList */}
+      &lt;TaskList tasks={tasks} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default App;
+      `}</code></pre>
+      <div class="detalle">
+        <ul>
+          <li><b>useState([])</b>: El estado inicial es una lista vacía.</li>
+          <li><b>addTask(text)</b>: Añade una tarea nueva a la lista y la marca como no completada.</li>
+        </ul>
+      </div>
+    </li>
+    <li>
+      <strong>Maneja el input y el envío del formulario en <code>TaskForm.js</code></strong>
+      <pre><code>{`
+import React, { useState } from 'react';
+
+function TaskForm({ onAddTask }) {
+  // Estado local para lo que escribe el usuario
+  const [input, setInput] = useState('');
+
+  // Se actualiza cada vez que el usuario escribe
+  const handleChange = (e) => setInput(e.target.value);
+
+  // Cuando el usuario envía el formulario
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Evita que la página recargue
+    onAddTask(input);   // Llama a la función del padre (App.js)
+    setInput('');       // Limpia el campo después de agregar
+  };
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        type="text"
+        placeholder="Nueva tarea"
+        value={input}
+        onChange={handleChange}
+      /&gt;
+      &lt;button type="submit"&gt;Agregar&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+
+export default TaskForm;
+      `}</code></pre>
+      <div class="detalle">
+        Así conectas el formulario con el estado de la app. Cada vez que el usuario envía, llamas la función del componente principal para agregar la tarea.
+      </div>
+    </li>
+    <li>
+      <strong>Muestra la lista de tareas en <code>TaskList.js</code></strong>
+      <pre><code>{`
+import React from 'react';
+
+function TaskList({ tasks }) {
+  return (
+    &lt;ul&gt;
+      {tasks.map((task, idx) =&gt; (
+        &lt;li key={idx}&gt;{task.text}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+export default TaskList;
+      `}</code></pre>
+      <div class="detalle">
+        <b>.map()</b> recorre la lista de tareas y crea un elemento <code>&lt;li&gt;</code> para cada una.
+      </div>
+    </li>
+  </ol>
+  <div class="mini-resumen">
+    <b>¿Qué aprendiste aquí?</b> <br>
+    - Qué es el <b>estado</b> y cómo usar <b>useState</b>.<br>
+    - Cómo comunicar componentes usando <b>props</b>.<br>
+    - El flujo básico de datos: el formulario recibe entrada, App actualiza el estado, y TaskList muestra las tareas.
+  </div>
+
+  <!-- PARTE 4 -->
+  <h2 id="parte4">Parte 4: Mostrando la Lista de Tareas</h2>
+  <ol>
+    <li>
+      <strong>¿Qué significa "renderizar listas" en React?</strong>
+      <div class="explica">
+        “Renderizar” significa mostrar información dinámica en la pantalla. Con <b>.map()</b> puedes transformar una lista de objetos en una lista de elementos HTML.<br>
+        En nuestro caso, convertimos cada tarea en un <code>&lt;li&gt;</code> en la lista.
+      </div>
+      <pre><code>{`
+function TaskList({ tasks }) {
+  return (
+    &lt;ul&gt;
+      {tasks.map((task, idx) =&gt; (
+        &lt;li key={idx}&gt;{task.text}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+      `}</code></pre>
+      <div class="detalle">
+        El atributo <code>key={idx}</code> ayuda a React a identificar cada elemento (es recomendable usar IDs únicos si tienes).
+      </div>
+    </li>
+    <li>
+      <strong>¿Cómo mostrar si una tarea está completada?</strong>
+      <div class="explica">
+        Puedes agregar lógica para tachar la tarea si está completada, usando <code>&lt;s&gt;</code> (strike).
+      </div>
+      <pre><code>{`
+<li key={idx}>
+  {task.completed ? <s>{task.text}</s> : task.text}
+</li>
+      `}</code></pre>
+    </li>
+  </ol>
+  <div class="mini-resumen">
+    <b>¿Qué aprendiste aquí?</b> <br>
+    - Cómo transformar datos en elementos visuales.<br>
+    - La importancia del atributo <b>key</b> para listas en React.
+  </div>
+
+  <!-- PARTE 5 -->
+  <h2 id="parte5">Parte 5: Añadiendo Interactividad (Completar y Eliminar Tareas)</h2>
+  <ol>
+    <li>
+      <strong>¿Por qué necesitamos más funciones?</strong>
+      <div class="explica">
+        Para que la aplicación sea útil, debemos poder marcar tareas como hechas (completadas) y borrar las que ya no necesitamos. Esto se logra manejando más <b>eventos</b> y <b>modificando el estado</b> desde App.js.
+      </div>
+    </li>
+    <li>
+      <strong>Agrega funciones para completar y eliminar tareas en <code>App.js</code>:</strong>
+      <pre><code>{`
+function App() {
+  const [tasks, setTasks] = useState([]);
+
+  const addTask = (text) => {
+    if (!text.trim()) return;
+    setTasks([...tasks, { text, completed: false }]);
+  };
+
+  // Cambia el estado de completada/no completada
+  const toggleTask = (index) => {
+    setTasks(tasks.map((t, i) =>
+      i === index ? { ...t, completed: !t.completed } : t
+    ));
+  };
+
+  // Elimina una tarea según su índice
+  const deleteTask = (index) => {
+    setTasks(tasks.filter((_, i) => i !== index));
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Mi Lista de Tareas&lt;/h1&gt;
+      &lt;TaskForm onAddTask={addTask} /&gt;
+      &lt;TaskList
+        tasks={tasks}
+        onToggleTask={toggleTask}
+        onDeleteTask={deleteTask}
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+      `}</code></pre>
+      <div class="detalle">
+        <ul>
+          <li><b>toggleTask:</b> Cambia el estado de "completada" de una tarea al hacer clic.</li>
+          <li><b>deleteTask:</b> Elimina la tarea seleccionada.</li>
+        </ul>
+      </div>
+    </li>
+    <li>
+      <strong>Modifica <code>TaskList.js</code> para usar esas funciones:</strong>
+      <pre><code>{`
+function TaskList({ tasks, onToggleTask, onDeleteTask }) {
+  return (
+    &lt;ul&gt;
+      {tasks.map((task, idx) =&gt; (
+        &lt;li key={idx}&gt;
+          &lt;span
+            style={{
+              textDecoration: task.completed ? 'line-through' : 'none',
+              cursor: 'pointer'
+            }}
+            onClick={() =&gt; onToggleTask(idx)}
+            title="Haz clic para marcar como completada"
+          &gt;
+            {task.text}
+          &lt;/span&gt;
+          &nbsp;
+          &lt;button onClick={() =&gt; onDeleteTask(idx)}&gt;Eliminar&lt;/button&gt;
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+      `}</code></pre>
+      <div class="detalle">
+        <b>Explicación:</b> <br>
+        <ul>
+          <li>El <code>span</code> muestra la tarea. Al hacer clic, se marca como completada (aplica "line-through").</li>
+          <li>El botón elimina la tarea. Así puedes experimentar cómo se modifica el estado a través de los componentes.</li>
+        </ul>
+      </div>
+    </li>
+  </ol>
+  <div class="mini-resumen">
+    <b>¿Qué aprendiste aquí?</b> <br>
+    - Cómo crear funciones que cambian el estado de la app.<br>
+    - Cómo pasar y usar esas funciones en los componentes hijos.<br>
+    - El concepto de “<b>state lifting</b>”: los componentes hijos informan al padre para modificar el estado global.
+  </div>
+
+  <!-- PARTE 6 -->
+  <h2 id="parte6">Parte 6: Estilos y Toques Finales</h2>
+  <ol>
+    <li>
+      <strong>¿Por qué usar un archivo CSS?</strong>
+      <div class="explica">
+        El CSS permite dar una mejor presentación visual a tu aplicación y separa los estilos del código lógico.<br>
+        Es buena práctica tener un archivo <code>App.css</code> y usarlo en tu app.
+      </div>
+      <pre><code>{`
+body {
+  background: #f0f2f5;
+}
+div {
+  max-width: 450px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 28px;
+  border-radius: 10px;
+  box-shadow: 0 1px 7px #e0e0e0;
+}
+input[type="text"] {
+  width: 70%;
+  padding: 7px;
+  margin-right: 8px;
+}
+button {
+  padding: 7px 15px;
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+li span {
+  flex: 1;
+}
+li button {
+  background: #e57373;
+}
+      `}</code></pre>
+    </li>
+    <li>
+      <strong>¿Cómo lo uso?</strong>
+      <div class="explica">
+        Simplemente importa el archivo al principio de <code>App.js</code>:
+      </div>
+      <pre><code>import './App.css';</code></pre>
+    </li>
+    <li>
+      <strong>¡Personaliza!</strong>
+      <div class="explica">
+        Puedes editar los colores, tamaños, fuentes, etc., para practicar y ver cómo cambian los estilos.
+      </div>
+    </li>
+  </ol>
+  <div class="mini-resumen">
+    <b>¿Qué aprendiste aquí?</b> <br>
+    - Cómo mejorar la experiencia visual.<br>
+    - Separar los estilos del código lógico.<br>
+    - Adaptar el diseño según tus gustos.
+  </div>
+
+  <hr>
+
+  <h2>¡Felicitaciones!</h2>
+  <p>
+    <b>Has construido desde cero una aplicación React</b> que usa componentes, props, estado y manejo de eventos.<br>
+    <b>¿Qué sigue?</b> Puedes explorar:
+    <ul>
+      <li>Agregar categorías o prioridad a las tareas.</li>
+      <li>Guardar las tareas en <b>localStorage</b> para que no se pierdan al recargar.</li>
+      <li>Integrar con una API externa.</li>
+    </ul>
+    Consulta la <a href="https://es.react.dev/" target="_blank">documentación oficial de React</a> para avanzar más.
+  </p>
+  <div class="block">
+    <strong>Recuerda:</strong> La clave para aprender es experimentar. Modifica, rompe y vuelve a armar el código: ¡así es como se aprende en desarrollo de software!
+  </div>
+</main>
+</body>
+</html>

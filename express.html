@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tutorial: Backend con Express y MySQL para tu To-Do App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7f9fa; color: #222; margin: 0; padding: 0; }
+    main { max-width: 920px; margin: 36px auto; background: #fff; padding: 36px; border-radius: 14px; box-shadow: 0 2px 8px #dbeafe; }
+    h1, h2, h3 { color: #1565c0; }
+    code, pre { background: #e3f2fd; color: #003366; padding: 4px 8px; border-radius: 5px; font-size: 1em;}
+    pre { overflow-x: auto; }
+    mark { background: #fff59d; }
+    .block { background: #e8f5e9; padding: 12px; border-radius: 7px; margin-bottom: 1em; border-left: 4px solid #43a047;}
+    .important { background: #fffde7; border-left: 4px solid #ffc107;}
+    ul, ol { margin-bottom: 1em; }
+    .mini-resumen { background: #f1f8e9; border-left: 4px solid #81c784; padding: 8px 12px; margin-top: 1.5em; margin-bottom: 2em;}
+    strong { color: #0d47a1;}
+    .explica { background: #e3eafc; border-left: 4px solid #3949ab; padding: 8px 12px; margin-bottom: 1em;}
+    .pregunta { background: #fff3e0; border-left: 4px solid #ff9800; padding: 8px 12px; margin-bottom: 1em;}
+    .detalle { font-size: 0.98em; color: #1a237e;}
+    a { color: #0d47a1; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Tutorial Práctico: Backend con Express y MySQL para tu To-Do App</h1>
+  <p>
+    En este tutorial aprenderás a crear paso a paso el backend para una aplicación de lista de tareas usando <b>Node.js</b>, <b>Express</b> y <b>MySQL</b>.
+    <br>Podrás guardar, consultar, marcar como completadas y eliminar tareas desde tu frontend de React.
+  </p>
+  <hr>
+
+  <h2>Índice</h2>
+  <ol>
+    <li><a href="#requisitos">Requisitos previos</a></li>
+    <li><a href="#bd">Crear la base de datos y tabla</a></li>
+    <li><a href="#proyecto-node">Crear el proyecto Node.js y configurar Express</a></li>
+    <li><a href="#conexion-express">Conexión a la base de datos y configuración de Express</a></li>
+    <li><a href="#rutas-api">Crear las rutas de la API (CRUD)</a></li>
+    <li><a href="#arrancar-servidor">Arrancar el servidor</a></li>
+    <li><a href="#pruebas">Probar la API</a></li>
+    <li><a href="#cierre">¿Qué sigue?</a></li>
+  </ol>
+
+  <hr>
+
+  <h2 id="requisitos">1. Requisitos previos</h2>
+  <div class="explica">
+    <ul>
+      <li><b>Node.js</b> y <b>npm</b> (los usaste en React): Permiten ejecutar JavaScript en el servidor y gestionar paquetes.</li>
+      <li><b>MySQL</b>: Sistema gestor de base de datos relacional, donde guardarás las tareas.</li>
+      <li><b>Editor de código</b>: Recomendado Visual Studio Code.</li>
+      <li><b>Cliente MySQL</b>: Para crear la base de datos fácilmente (puede ser phpMyAdmin, DBeaver, Workbench, o consola).</li>
+    </ul>
+    <b>Consejo:</b> Si no tienes MySQL instalado, puedes usar paquetes como XAMPP, WAMP o instalarlo directamente según tu sistema operativo.
+  </div>
+
+  <h2 id="bd">2. Crear la base de datos y la tabla</h2>
+  <div class="explica">
+    <b>¿Por qué es necesario?</b>
+    <br>La base de datos almacena todas las tareas que tu aplicación crea o modifica. 
+    <br>La tabla es como una hoja de Excel donde cada fila es una tarea.
+  </div>
+  <ol>
+    <li>Abre tu cliente MySQL o consola, y ejecuta estos comandos:</li>
+  </ol>
+  <pre><code>CREATE DATABASE todo_app CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+USE todo_app;
+
+CREATE TABLE tasks (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  text VARCHAR(255) NOT NULL,
+  completed BOOLEAN NOT NULL DEFAULT 0
+);</code></pre>
+  <div class="detalle">
+    <ul>
+      <li><code>CREATE DATABASE todo_app</code>: Crea una base de datos llamada "todo_app".</li>
+      <li><code>CREATE TABLE tasks</code>: Crea una tabla llamada "tasks" con tres columnas:
+        <ul>
+          <li><b>id</b>: Número único para identificar cada tarea.</li>
+          <li><b>text</b>: Texto de la tarea.</li>
+          <li><b>completed</b>: 0 (pendiente), 1 (completada).</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <h2 id="proyecto-node">3. Crear el proyecto Node.js y configurar Express</h2>
+  <ol>
+    <li>
+      <b>Crea una carpeta para el backend</b>
+      <div class="explica">
+        Así tienes tu frontend y backend por separado y evitas confusiones.
+      </div>
+      <pre><code>mkdir backend-todo
+cd backend-todo</code></pre>
+    </li>
+    <li>
+      <b>Inicializa un proyecto Node.js</b>
+      <div class="explica">
+        El comando <code>npm init -y</code> crea un archivo <code>package.json</code> con la configuración básica para tu proyecto.
+      </div>
+      <pre><code>npm init -y</code></pre>
+    </li>
+    <li>
+      <b>Instala las dependencias</b>
+      <ul>
+        <li><code>express</code>: Framework para crear el servidor y las rutas (API).</li>
+        <li><code>mysql2</code>: Permite conectar Node.js con MySQL.</li>
+        <li><code>cors</code>: Permite que el frontend pueda comunicarse con tu API sin problemas de seguridad.</li>
+      </ul>
+      <pre><code>npm install express mysql2 cors</code></pre>
+    </li>
+    <li>
+      <b>Crea el archivo principal del backend</b>
+      <div class="explica">
+        Ahí escribirás el código del servidor y la API.
+      </div>
+      <pre><code>touch index.js</code></pre>
+      <div class="detalle">
+        Si usas Windows o el explorador de VS Code, solo crea <b>index.js</b> manualmente.
+      </div>
+    </li>
+  </ol>
+
+  <h2 id="conexion-express">4. Conexión a la base de datos y configuración de Express</h2>
+  <div class="explica">
+    Ahora vas a conectar tu backend (Node.js) con MySQL y dejar Express listo para recibir solicitudes.
+  </div>
+  <pre><code>// Importar los módulos necesarios
+const express = require('express');
+const mysql = require('mysql2');
+const cors = require('cors');
+
+const app = express();
+const PORT = 3001; // El puerto donde correrá tu backend
+
+// Configurar middleware para que tu API acepte peticiones desde otros orígenes (CORS) y peticiones en JSON
+app.use(cors());
+app.use(express.json());
+
+// Configura la conexión con tu base de datos MySQL
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',        // Cambia por tu usuario si es distinto
+  password: '',        // Escribe tu contraseña de MySQL si tienes
+  database: 'todo_app' // Debe coincidir con el nombre de tu BD
+});
+
+// Verifica que la conexión funcione
+db.connect((err) => {
+  if (err) {
+    console.error('Error de conexión a la BD:', err);
+    return;
+  }
+  console.log('Conexión a la base de datos MySQL exitosa');
+});
+</code></pre>
+  <div class="detalle">
+    <b>¿Qué hace cada parte?</b>
+    <ul>
+      <li><b>express</b>: Permite crear el servidor y las rutas para tu API.</li>
+      <li><b>mysql2</b>: Permite comunicar Node.js con MySQL fácilmente.</li>
+      <li><b>cors</b>: Permite que React (en otro puerto) acceda a tu backend.</li>
+      <li><b>app.use(express.json())</b>: Hace que tu API acepte datos en formato JSON.</li>
+      <li><b>db.connect()</b>: Intenta conectar tu backend con la base de datos MySQL y muestra un mensaje si tiene éxito o error.</li>
+    </ul>
+  </div>
+
+  <h2 id="rutas-api">5. Crear las rutas de la API (CRUD)</h2>
+  <div class="explica">
+    Estas rutas serán llamadas por el frontend para guardar, obtener, actualizar o borrar tareas.  
+    <b>CRUD = Create, Read, Update, Delete (Crear, Leer, Actualizar, Eliminar).</b>
+  </div>
+
+  <h3>a) Obtener todas las tareas (GET)</h3>
+  <pre><code>// GET /api/tasks
+app.get('/api/tasks', (req, res) => {
+  db.query('SELECT * FROM tasks', (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(results);
+  });
+});
+</code></pre>
+  <div class="detalle">
+    <b>¿Qué hace?</b>  
+    Ejecuta un SELECT para traer todas las tareas de la base de datos y las retorna en formato JSON para que el frontend pueda mostrarlas.
+  </div>
+
+  <h3>b) Agregar una tarea (POST)</h3>
+  <pre><code>// POST /api/tasks
+app.post('/api/tasks', (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Texto de tarea requerido' });
+  db.query('INSERT INTO tasks (text) VALUES (?)', [text], (err, result) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json({ id: result.insertId, text, completed: 0 });
+  });
+});
+</code></pre>
+  <div class="detalle">
+    <b>¿Qué hace?</b>
+    <ul>
+      <li>Lee el texto de la nueva tarea que el frontend envía en el cuerpo de la petición (<code>req.body.text</code>).</li>
+      <li>Inserta esa tarea en la tabla.</li>
+      <li>Retorna la nueva tarea creada (incluyendo el id generado).</li>
+    </ul>
+  </div>
+
+  <h3>c) Marcar tarea como completada/incompleta (PUT)</h3>
+  <pre><code>// PUT /api/tasks/:id
+app.put('/api/tasks/:id', (req, res) => {
+  const { id } = req.params;
+  const { completed } = req.body;
+  db.query(
+    'UPDATE tasks SET completed = ? WHERE id = ?',
+    [completed, id],
+    (err) => {
+      if (err) return res.status(500).json({ error: err });
+      res.json({ id, completed });
+    }
+  );
+});
+</code></pre>
+  <div class="detalle">
+    <b>¿Qué hace?</b>
+    <ul>
+      <li>Recibe el <code>id</code> de la tarea como parámetro en la URL y el nuevo estado (<code>completed</code>) en el cuerpo.</li>
+      <li>Actualiza la columna <code>completed</code> de la tarea en la base de datos.</li>
+      <li>Retorna un JSON con el id y el nuevo estado.</li>
+    </ul>
+  </div>
+
+  <h3>d) Eliminar una tarea (DELETE)</h3>
+  <pre><code>// DELETE /api/tasks/:id
+app.delete('/api/tasks/:id', (req, res) => {
+  const { id } = req.params;
+  db.query('DELETE FROM tasks WHERE id = ?', [id], (err) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json({ id });
+  });
+});
+</code></pre>
+  <div class="detalle">
+    <b>¿Qué hace?</b>
+    <ul>
+      <li>Recibe el <code>id</code> de la tarea como parámetro en la URL.</li>
+      <li>Borra la tarea correspondiente de la tabla.</li>
+      <li>Retorna el id eliminado para confirmación.</li>
+    </ul>
+  </div>
+
+  <h2 id="arrancar-servidor">6. Arrancar el servidor</h2>
+  <div class="explica">
+    Así pones tu backend en funcionamiento para recibir y responder solicitudes.
+  </div>
+  <pre><code>app.listen(PORT, () => {
+  console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
+});
+</code></pre>
+  <div class="detalle">
+    <ul>
+      <li>Pone tu backend "a la escucha" en el puerto 3001 (puedes cambiarlo si lo necesitas).</li>
+      <li>Verás en la terminal el mensaje cuando todo esté bien.</li>
+    </ul>
+  </div>
+
+  <h3>Archivo <code>index.js</code> completo (puedes copiar y pegar):</h3>
+  <pre><code>// --- index.js ---
+const express = require('express');
+const mysql = require('mysql2');
+const cors = require('cors');
+
+const app = express();
+const PORT = 3001;
+
+app.use(cors());
+app.use(express.json());
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '', // Cambia por tu contraseña si tienes
+  database: 'todo_app'
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error('Error de conexión a la BD:', err);
+    return;
+  }
+  console.log('Conexión a la base de datos MySQL exitosa');
+});
+
+// Obtener todas las tareas
+app.get('/api/tasks', (req, res) => {
+  db.query('SELECT * FROM tasks', (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(results);
+  });
+});
+
+// Agregar una tarea
+app.post('/api/tasks', (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Texto de tarea requerido' });
+  db.query('INSERT INTO tasks (text) VALUES (?)', [text], (err, result) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json({ id: result.insertId, text, completed: 0 });
+  });
+});
+
+// Actualizar estado de una tarea
+app.put('/api/tasks/:id', (req, res) => {
+  const { id } = req.params;
+  const { completed } = req.body;
+  db.query('UPDATE tasks SET completed = ? WHERE id = ?', [completed, id], (err) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json({ id, completed });
+  });
+});
+
+// Eliminar una tarea
+app.delete('/api/tasks/:id', (req, res) => {
+  const { id } = req.params;
+  db.query('DELETE FROM tasks WHERE id = ?', [id], (err) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json({ id });
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
+});
+</code></pre>
+
+  <h2 id="pruebas">7. Probar la API</h2>
+  <div class="explica">
+    Es importante probar tu backend antes de conectarlo con el frontend.
+  </div>
+  <ol>
+    <li>En la terminal, ejecuta:</li>
+    <pre><code>node index.js</code></pre>
+    <li>Deberías ver el mensaje: <b>Servidor backend escuchando en http://localhost:3001</b> y/o <b>Conexión a la base de datos MySQL exitosa</b>.</li>
+    <li>Usa <a href="https://www.postman.com/" target="_blank">Postman</a> o <a href="https://insomnia.rest/" target="_blank">Insomnia</a> para enviar peticiones a los endpoints:
+      <ul>
+        <li><b>GET</b> <code>http://localhost:3001/api/tasks</code> → Lista todas las tareas.</li>
+        <li><b>POST</b> <code>http://localhost:3001/api/tasks</code> → Agrega una nueva tarea (envía <code>{"text":"Tu tarea"}</code> en el body).</li>
+        <li><b>PUT</b> <code>http://localhost:3001/api/tasks/:id</code> → Marca tarea como completada/incompleta (<code>{"completed":1}</code> o <code>{"completed":0}</code>).</li>
+        <li><b>DELETE</b> <code>http://localhost:3001/api/tasks/:id</code> → Elimina una tarea.</li>
+      </ul>
+    </li>
+    <li>¡Si todo funciona, tu backend está listo para usarse desde React!</li>
+  </ol>
+
+  <h2 id="cierre">¿Qué sigue?</h2>
+  <div class="block">
+    Ahora puedes conectar tu frontend de React para que las tareas se guarden realmente en tu base de datos y persistan.  
+    <br>¿Quieres el tutorial de integración React + Express + MySQL? ¡Pídelo y lo tendrás!
+    <br><br>
+    <b>Consejos:</b>
+    <ul>
+      <li>No dejes el usuario <b>root</b> y sin contraseña en producción.</li>
+      <li>Haz respaldos de la base de datos si vas a probar mucho.</li>
+      <li>Explora la documentación oficial de <a href="https://expressjs.com/" target="_blank">Express</a> y <a href="https://www.npmjs.com/package/mysql2" target="_blank">mysql2</a> para seguir aprendiendo.</li>
+    </ul>
+  </div>
+
+  <hr>
+  <p style="font-size: 1.1em; color:#333;">
+    <strong>¡Felicidades!</strong> Ahora tienes tu propio backend funcional.  
+    <br>Recuerda: la práctica y la curiosidad son la mejor forma de aprender desarrollo de software.
+  </p>
+</main>
+</body>
+</html>
